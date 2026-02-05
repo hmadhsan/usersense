@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { LayoutGrid, PlayCircle, BarChart3, Settings, Shield, User, Bell, Search, Globe, ChevronRight, Activity, AlertCircle, TrendingUp, Zap, MousePointer2 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, BarChart, Bar } from 'recharts';
 import './Dashboard.css';
+import { API_BASE_URL } from '../api-config';
+
 
 function Dashboard() {
   const [activeTab, setActiveTab] = useState('simulations');
@@ -19,7 +21,7 @@ function Dashboard() {
 
   const fetchReports = async () => {
     try {
-      const response = await fetch('http://localhost:3001/reports');
+      const response = await fetch(`${API_BASE_URL}/reports`);
       if (!response.ok) throw new Error('Failed to fetch');
       const data = await response.json();
       setReports(data);
@@ -46,7 +48,7 @@ function Dashboard() {
       setTimeout(() => { setScanStep(2); setScanLogs(prev => [...prev, `Auditing page for friction points matching goal: "${scanGoal}"`]); }, 4000);
       setTimeout(() => { setScanStep(3); setScanLogs(prev => [...prev, 'AI analyzing visual hierarchy and cognitive load...']); }, 7000);
 
-      const response = await fetch('http://localhost:3001/scan', {
+      const response = await fetch(`${API_BASE_URL}/scan`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: scanUrl, goal: scanGoal, persona: selectedPersona })
@@ -553,7 +555,7 @@ function Dashboard() {
                           </div>
                           <div className="step-visual">
                             {step.screenshot ? (
-                              <img src={`http://localhost:3001/screenshots/${step.screenshot}`} alt={`Step ${index + 1}`} />
+                              <img src={`${API_BASE_URL}/screenshots/${step.screenshot}`} alt={`Step ${index + 1}`} />
                             ) : (
                               <div className="no-visual">Screenshot loading...</div>
                             )}

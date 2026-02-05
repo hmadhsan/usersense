@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import './Hero.css'
+import { API_BASE_URL } from '../api-config'
+
 
 function Hero() {
   const [isScanning, setIsScanning] = useState(false)
@@ -76,7 +78,7 @@ function Hero() {
     }, 1500)
 
     try {
-      const response = await fetch('http://localhost:3001/scan', {
+      const response = await fetch(`${API_BASE_URL}/scan`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: url, goal, persona: activePersona })

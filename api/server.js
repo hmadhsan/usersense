@@ -52,7 +52,8 @@ app.get('/reports', async (req, res) => {
 
     res.json(reports);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch reports', details: error.message });
+    console.error('Fetch reports error:', error);
+    res.json([]); // Return empty array instead of 500 on FS errors in production
   }
 });
 
@@ -97,6 +98,10 @@ app.post('/scan', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`✅ UserSense Bridge API running on http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`✅ UserSense Bridge API running on http://localhost:${PORT}`);
+  });
+}
+
+export default app;
