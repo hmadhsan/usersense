@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isVercel = !!process.env.VERCEL || process.env.NODE_ENV === 'production';
+console.log(`[Bridge] Server starting... Environment: ${isVercel ? 'Cloud' : 'Local'}`);
 
 // On Vercel, use /tmp for runtime operations as the main FS is read-only
 const REPORTS_DIR = isVercel
