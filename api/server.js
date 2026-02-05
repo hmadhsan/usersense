@@ -23,7 +23,8 @@ if (!fs.existsSync(REPORTS_DIR)) {
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use('/screenshots', express.static(REPORTS_DIR));
+
+const router = express.Router();
 
 // Health check endpoint
 router.get('/health', (req, res) => {
