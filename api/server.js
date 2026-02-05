@@ -5,7 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const isVercel = process.env.VERCEL === '1';
+const isVercel = !!process.env.VERCEL || process.env.NODE_ENV === 'production';
 
 // On Vercel, use /tmp for runtime operations as the main FS is read-only
 const REPORTS_DIR = isVercel
@@ -35,6 +35,8 @@ try {
       res.json({
         status: 'ok',
         environment: isVercel ? 'production' : 'development',
+        vercel_env: process.env.VERCEL,
+        node_env: process.env.NODE_ENV,
         time: new Date().toISOString(),
         reports_dir: REPORTS_DIR,
         storage_check: fs.existsSync(REPORTS_DIR)
@@ -42,6 +44,10 @@ try {
     } catch (e) {
       res.status(500).json({ status: 'error', message: e.message });
     }
+  });
+
+  router.get('/ping', (req, res) => {
+    res.send('pong');
   });
 
   // API to fetch all previous reports
