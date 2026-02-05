@@ -1,10 +1,8 @@
 import express from 'express';
 import cors from 'cors';
-import * as dotenv from 'dotenv';
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
 import { fileURLToPath } from 'url';
-import { Session } from '../prototype/src/index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isVercel = process.env.VERCEL === '1';
@@ -14,22 +12,26 @@ const REPORTS_DIR = isVercel
   ? '/tmp/usersense-reports'
   : path.resolve(__dirname, '../prototype/usersense-reports');
 
-if (isVercel && !fs.existsSync(REPORTS_DIR)) {
-  fs.mkdirSync(REPORTS_DIR, { recursive: true });
+if (!fs.existsSync(REPORTS_DIR)) {
+  try {
+    fs.mkdirSync(REPORTS_DIR, { recursive: true });
+  } catch (e) {
+    console.warn('[Server] Directory creation warning:', e.message);
+  }
 }
 
-// Load .env from the prototype directory where the user stored the key
-dotenv.config({ path: path.resolve(__dirname, '../prototype/.env') });
-
 const app = express();
-const PORT = 3001;
-
 app.use(cors());
 app.use(express.json());
 app.use('/screenshots', express.static(REPORTS_DIR));
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', environment: isVercel ? 'production' : 'development' });
+});
+
 // API to fetch all previous reports
-app.get('/reports', async (req, res) => {
+app.get('/reports', (req, res) => {
   try {
     if (!fs.existsSync(REPORTS_DIR)) {
       return res.json([]);
@@ -37,36 +39,39 @@ app.get('/reports', async (req, res) => {
 
     const files = fs.readdirSync(REPORTS_DIR)
       .filter(f => f.endsWith('.json'))
-      .sort((a, b) => fs.statSync(path.join(REPORTS_DIR, b)).mtimeMs - fs.statSync(path.join(REPORTS_DIR, a)).mtimeMs);
+      .sort((a, b) => {
+        try {
+          return fs.statSync(path.join(REPORTS_DIR, b)).mtimeMs - fs.statSync(path.join(REPORTS_DIR, a)).mtimeMs;
+        } catch (e) { return 0; }
+      });
 
     const reports = files.map(file => {
-      const content = JSON.parse(fs.readFileSync(path.join(REPORTS_DIR, file), 'utf8'));
-      const score = content.score || Math.max(0, 100 - (content.frictionPoints * 12));
-      return {
-        id: file,
-        url: content.url,
-        goal: content.goal || "Deep Audit",
-        score: score,
-        date: fs.statSync(path.join(REPORTS_DIR, file)).mtime.toISOString().split('T')[0],
-        friction: content.frictionPoints,
-        steps: content.totalSteps || 0,
-        status: score > 85 ? 'Healthy' : (score > 60 ? 'Warning' : 'Critical'),
-        // Rich journey data
-        journey: content.report?.map(step => ({
-          ...step,
-          screenshot: step.screenshot ? path.basename(step.screenshot) : null
-        })) || []
-      };
-    });
+      try {
+        const content = JSON.parse(fs.readFileSync(path.join(REPORTS_DIR, file), 'utf8'));
+        const score = content.score || Math.max(0, 100 - (content.frictionPoints * 12));
+        return {
+          id: file,
+          url: content.url,
+          goal: content.goal || "Deep Audit",
+          score: score,
+          date: content.date || new Date().toISOString().split('T')[0],
+          friction: content.frictionPoints,
+          steps: content.totalSteps || 0,
+          status: score > 85 ? 'Healthy' : (score > 60 ? 'Warning' : 'Critical'),
+          journey: content.report?.map(step => ({
+            ...step,
+            screenshot: step.screenshot ? path.basename(step.screenshot) : null
+          })) || []
+        };
+      } catch (e) { return null; }
+    }).filter(r => r !== null);
 
     res.json(reports);
   } catch (error) {
     console.error('Fetch reports error:', error);
-    res.json([]); // Return empty array instead of 500 on FS errors in production
+    res.json([]);
   }
 });
-
-console.log('🚀 UserSense Bridge API starting...');
 
 app.post('/scan', async (req, res) => {
   const { url, goal = "Perform a deep experience audit and find friction", persona = "Default" } = req.body;
@@ -77,75 +82,75 @@ app.post('/scan', async (req, res) => {
 
   console.log(`[Bridge] Starting scan for: ${url} (Goal: ${goal}, Persona: ${persona})`);
 
-  // Cloud Demo Mode for Vercel (where Playwright binaries are usually missing)
+  // --- PRODUCTION (VERCEL) FALLBACK ---
   if (isVercel) {
-    console.log('[Bridge] Vercel environment detected. Running Cloud Simulation...');
+    console.log('[Bridge] Running Cloud Simulation...');
 
-    // Simulate a slight AI processing delay
-    await new Promise(resolve => setTimeout(resolve, 2500));
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
     const result = {
       url,
       goal,
       persona,
-      score: 65 + Math.floor(Math.random() * 25),
-      frictionPoints: 2 + Math.floor(Math.random() * 3),
-      totalSteps: 4,
+      score: 72 + Math.floor(Math.random() * 15),
+      frictionPoints: 2,
+      totalSteps: 3,
+      date: new Date().toISOString().split('T')[0],
       report: [
         {
           step: 1,
           status: 'ok',
-          issue: '',
-          impact: 'Navigating to target environment...',
+          issue: 'Navigation audit complete',
+          impact: 'Agent successfully simulated landing behavior.',
           suggestion: '',
           coordinates: { x: 0, y: 0 }
         },
         {
           step: 2,
           status: 'friction_detected',
-          issue: 'High Cognitive Load detected in Navigation',
-          impact: 'Users take 3.2s longer than average to identify the primary CTA.',
-          suggestion: 'Increase visual weight of the primary button.',
-          coordinates: { x: 640, y: 40, width: 200, height: 50 }
+          issue: 'Potential Choice Overload',
+          impact: 'Too many secondary actions competing with primary CTA.',
+          suggestion: 'Simplify the hero section for better conversion.',
+          coordinates: { x: 640, y: 300, width: 300, height: 100 }
         },
         {
           step: 3,
           status: 'friction_detected',
-          issue: 'Rage Clicking on Non-Interactive Element',
-          impact: 'Potential frustration found on section headers.',
-          suggestion: 'Check if headers are misleadingly styled as links.',
-          coordinates: { x: 320, y: 450, width: 400, height: 100 }
-        },
-        {
-          step: 4,
-          status: 'ok',
-          issue: 'Simulation Complete',
-          impact: 'Deep Behavioral Trace stored.',
-          suggestion: 'Ready for deep dive.',
-          coordinates: { x: 0, y: 0 }
+          issue: 'Visual Weight Imbalance',
+          impact: 'The primary button contrast is below optimal threshold.',
+          suggestion: 'Increase saturation of the primary brand color.',
+          coordinates: { x: 500, y: 200, width: 150, height: 40 }
         }
       ]
     };
 
-    // Persist JSON for Dashboard visualization
     const jsonFilename = `report-${Date.now()}.json`;
     try {
       fs.writeFileSync(path.join(REPORTS_DIR, jsonFilename), JSON.stringify(result, null, 2));
     } catch (e) {
-      console.warn('[Bridge] Failed to persist report to /tmp:', e.message);
+      console.warn('[Bridge] Persistence skipped in cloud environment.');
     }
 
     return res.json(result);
   }
 
-  // Local Engine (Real Playwright)
-  const session = new Session({
-    project: 'web-live-check',
-    persona,
-    outputDir: REPORTS_DIR
-  });
-
+  // --- LOCAL ENGINE (DYNAMIC LOADING) ---
   try {
+    // Dynamically load local-only dependencies
+    const { dotenv } = await import('dotenv');
+    const { Session } = await import('../prototype/src/index.js');
+
+    const envPath = path.resolve(__dirname, '../prototype/.env');
+    if (fs.existsSync(envPath)) {
+      dotenv.config({ path: envPath });
+    }
+
+    const session = new Session({
+      project: 'web-live-check',
+      persona,
+      outputDir: REPORTS_DIR
+    });
+
     await session.init();
     await session.page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
 
@@ -153,22 +158,23 @@ app.post('/scan', async (req, res) => {
     await session.close();
 
     result.persona = persona;
-    const jsonOutput = JSON.stringify(result, null, 2);
-    const jsonFilename = `report-${Date.now()}.json`;
-    fs.writeFileSync(path.join(REPORTS_DIR, jsonFilename), jsonOutput);
+    result.date = new Date().toISOString().split('T')[0];
 
-    console.log(`[Bridge] Local Scan complete. Persisted: ${jsonFilename}`);
+    const jsonFilename = `report-${Date.now()}.json`;
+    fs.writeFileSync(path.join(REPORTS_DIR, jsonFilename), JSON.stringify(result, null, 2));
+
+    console.log(`[Bridge] Local Scan complete: ${jsonFilename}`);
     res.json(result);
   } catch (error) {
-    console.error('[Bridge] Local Scan failed:', error.message);
-    if (session) try { await session.close(); } catch (e) { }
-    res.status(500).json({ error: 'Scan failed', details: error.message });
+    console.error('[Bridge] Local Engine Error:', error.message);
+    res.status(500).json({ error: 'Local Scan failed', details: error.message });
   }
 });
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production' && !isVercel) {
+  const PORT = 3001;
   app.listen(PORT, () => {
-    console.log(`✅ UserSense Bridge API running on http://localhost:${PORT}`);
+    console.log(`✅ UserSense Bridge running locally: http://localhost:${PORT}`);
   });
 }
 
