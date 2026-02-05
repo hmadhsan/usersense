@@ -27,6 +27,8 @@ function Dashboard() {
       setReports(data);
     } catch (err) {
       console.error('Fetch error:', err);
+      // In production, we gracefully handle the absence of local reports
+      setReports([]);
     } finally {
       setLoading(false);
     }
