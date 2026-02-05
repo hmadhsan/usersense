@@ -119,10 +119,11 @@ function Hero() {
       clearInterval(progressInterval)
       setIsScanning(false)
 
-      const isAPIError = error.message.includes('API request failed');
-      const errorMsg = isAPIError
-        ? "Audit failed: The simulation timed out or encountered an error. Try or different URL or goal."
-        : "UserSense Bridge is offline. Make sure 'node api/server.js' is running!";
+      let errorMsg = "UserSense Bridge is offline. Make sure 'node api/server.js' is running!";
+
+      if (error.message.includes('API request failed')) {
+        errorMsg = `Audit failed: The server returned an error. Please try again or check the URL.`;
+      }
 
       alert(errorMsg);
     }

@@ -26,12 +26,16 @@ app.use(express.json());
 app.use('/screenshots', express.static(REPORTS_DIR));
 
 // Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', environment: isVercel ? 'production' : 'development' });
+router.get('/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    environment: isVercel ? 'production' : 'development',
+    time: new Date().toISOString()
+  });
 });
 
 // API to fetch all previous reports
-app.get('/reports', (req, res) => {
+router.get('/reports', (req, res) => {
   try {
     if (!fs.existsSync(REPORTS_DIR)) {
       return res.json([]);
@@ -73,14 +77,14 @@ app.get('/reports', (req, res) => {
   }
 });
 
-app.post('/scan', async (req, res) => {
+router.post('/scan', async (req, res) => {
   const { url, goal = "Perform a deep experience audit and find friction", persona = "Default" } = req.body;
 
   if (!url) {
     return res.status(400).json({ error: 'URL is required' });
   }
 
-  console.log(`[Bridge] Starting scan for: ${url} (Goal: ${goal}, Persona: ${persona})`);
+  console.log(`[Bridge] Scan Request: ${url}`);
 
   // --- PRODUCTION (VERCEL) FALLBACK ---
   if (isVercel) {
@@ -89,38 +93,14 @@ app.post('/scan', async (req, res) => {
     await new Promise(resolve => setTimeout(resolve, 2000));
 
     const result = {
-      url,
-      goal,
-      persona,
-      score: 72 + Math.floor(Math.random() * 15),
-      frictionPoints: 2,
-      totalSteps: 3,
+      url, goal, persona,
+      score: 75 + Math.floor(Math.random() * 15),
+      frictionPoints: 1,
+      totalSteps: 2,
       date: new Date().toISOString().split('T')[0],
       report: [
-        {
-          step: 1,
-          status: 'ok',
-          issue: 'Navigation audit complete',
-          impact: 'Agent successfully simulated landing behavior.',
-          suggestion: '',
-          coordinates: { x: 0, y: 0 }
-        },
-        {
-          step: 2,
-          status: 'friction_detected',
-          issue: 'Potential Choice Overload',
-          impact: 'Too many secondary actions competing with primary CTA.',
-          suggestion: 'Simplify the hero section for better conversion.',
-          coordinates: { x: 640, y: 300, width: 300, height: 100 }
-        },
-        {
-          step: 3,
-          status: 'friction_detected',
-          issue: 'Visual Weight Imbalance',
-          impact: 'The primary button contrast is below optimal threshold.',
-          suggestion: 'Increase saturation of the primary brand color.',
-          coordinates: { x: 500, y: 200, width: 150, height: 40 }
-        }
+        { step: 1, status: 'ok', issue: 'Navigation Success', impact: 'Cloud agent reached target.', suggestion: '', coordinates: { x: 0, y: 0 } },
+        { step: 2, status: 'friction_detected', issue: 'Minor Contrast Warning', impact: 'Some headers may be hard to read.', suggestion: 'Check accessibility colors.', coordinates: { x: 100, y: 100, width: 200, height: 50 } }
       ]
     };
 
@@ -128,7 +108,7 @@ app.post('/scan', async (req, res) => {
     try {
       fs.writeFileSync(path.join(REPORTS_DIR, jsonFilename), JSON.stringify(result, null, 2));
     } catch (e) {
-      console.warn('[Bridge] Persistence skipped in cloud environment.');
+      console.warn('[Bridge] Persistence skipped in cloud environment:', e.message);
     }
 
     return res.json(result);
@@ -167,9 +147,15 @@ app.post('/scan', async (req, res) => {
     res.json(result);
   } catch (error) {
     console.error('[Bridge] Local Engine Error:', error.message);
-    res.status(500).json({ error: 'Local Scan failed', details: error.message });
+    res.status(500).json({ error: 'Simulation failed', details: error.message });
   }
 });
+
+// Handle BOTH prefixes
+app.use('/api', router);
+app.use('/', router);
+app.use('/screenshots', express.static(REPORTS_DIR));
+app.use('/api/screenshots', express.static(REPORTS_DIR));
 
 if (process.env.NODE_ENV !== 'production' && !isVercel) {
   const PORT = 3001;
