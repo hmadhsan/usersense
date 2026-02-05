@@ -1,0 +1,460 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentio Friction Report - https://discord.com</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #FAFAFA;
+            --card: #FFFFFF;
+            --text: #171717;
+            --muted: #666666;
+            --border: rgba(0,0,0,0.08);
+            --accent: #5E6AD2;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --error: #EF4444;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+
+        .container { max-width: 800px; margin: 0 auto; }
+        
+        header { margin-bottom: 40px; text-align: center; }
+        .logo { font-weight: 700; font-size: 24px; color: var(--accent); margin-bottom: 8px; display: block; }
+        .timestamp { font-size: 14px; color: var(--muted); }
+
+        .summary-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 8px solid var(--border);
+            flex-shrink: 0;
+        }
+        
+        .score-circle.good { border-color: var(--success); color: var(--success); }
+        .score-circle.warning { border-color: var(--warning); color: var(--warning); }
+        .score-circle.critical { border-color: var(--error); color: var(--error); }
+
+        .score-value { font-size: 32px; font-weight: 700; line-height: 1; }
+        .score-label { font-size: 12px; font-weight: 600; text-transform: uppercase; margin-top: 4px; }
+
+        .summary-info h1 { font-size: 20px; margin-bottom: 8px; word-break: break-all; }
+        .summary-info p { font-size: 15px; color: var(--muted); }
+
+        .report-section { display: flex; flex-direction: column; gap: 24px; }
+        
+        .report-item {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .step-num { font-weight: 600; font-size: 14px; color: var(--muted); }
+        .status-badge { 
+            font-size: 12px; 
+            font-weight: 600; 
+            padding: 4px 12px; 
+            border-radius: 100px; 
+            text-transform: uppercase; 
+        }
+        .status-badge.ok { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .status-badge.friction_detected { background: rgba(239, 68, 68, 0.1); color: var(--error); }
+
+        .issue-title { font-size: 18px; margin-bottom: 12px; }
+        .issue-impact, .issue-suggestion { font-size: 14px; margin-bottom: 8px; }
+        
+        .screenshot-container { margin-top: 20px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+        .screenshot { width: 100%; display: block; }
+
+        .item-metrics { margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--border); }
+        .metric { font-size: 12px; color: var(--muted); font-family: monospace; }
+        
+        footer { margin-top: 60px; text-align: center; font-size: 14px; color: var(--muted); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <span class="logo">Sentio</span>
+            <p class="timestamp">Generated on 04/02/2026, 23:50:01</p>
+        </header>
+
+        <div class="summary-card">
+            <div class="score-circle critical">
+                <span class="score-value">100</span>
+                <span class="score-label">Friction Score</span>
+            </div>
+            <div class="summary-info">
+                <h1>Friction Analysis: Page Analysis</h1>
+                <p>URL: https://discord.com</p>
+                <p>Total Steps Simulated: 12 | Friction Points: 12</p>
+            </div>
+        </div>
+
+        <div class="report-section">
+            
+      <div class="report-item friction_detected">
+        <div class="item-header">
+          <span class="step-num">Step 1</span>
+          <span class="status-badge friction_detected">friction detected</span>
+        </div>
+        
+        
+          <div class="issue-content">
+            <h3 class="issue-title">Page load took 2826ms</h3>
+            <p class="issue-impact"><strong>Impact:</strong> users may abandon slow-loading pages</p>
+            <p class="issue-suggestion"><strong>Fix:</strong> Optimize page load time to under 2 seconds</p>
+            
+            
+              <div class="screenshot-container">
+                <img src="step-1-1770245375637.png" alt="Friction evidence" class="screenshot" />
+              </div>
+            
+          </div>
+        
+        
+        
+          <div class="item-metrics">
+            <span class="metric">FCP: 800ms</span>
+          </div>
+        
+      </div>
+    
+      <div class="report-item friction_detected">
+        <div class="item-header">
+          <span class="step-num">Step 2</span>
+          <span class="status-badge friction_detected">friction detected</span>
+        </div>
+        
+        
+          <div class="issue-content">
+            <h3 class="issue-title">11 competing CTAs detected on page</h3>
+            <p class="issue-impact"><strong>Impact:</strong> users may feel overwhelmed and abandon</p>
+            <p class="issue-suggestion"><strong>Fix:</strong> Reduce to a single primary action per section</p>
+            
+            
+              <div class="screenshot-container">
+                <img src="step-2-1770245378015.png" alt="Friction evidence" class="screenshot" />
+              </div>
+            
+          </div>
+        
+        
+        
+          <div class="item-metrics">
+            <span class="metric">FCP: 800ms</span>
+          </div>
+        
+      </div>
+    
+      <div class="report-item friction_detected">
+        <div class="item-header">
+          <span class="step-num">Step 3</span>
+          <span class="status-badge friction_detected">friction detected</span>
+        </div>
+        
+        
+          <div class="issue-content">
+            <h3 class="issue-title">Button "Safety" is too small (100x39px)</h3>
+            <p class="issue-impact"><strong>Impact:</strong> users may have difficulty clicking on mobile</p>
+            <p class="issue-suggestion"><strong>Fix:</strong> Increase button size to at least 44px</p>
+            
+            
+              <div class="screenshot-container">
+                <img src="step-3-1770245378470.png" alt="Friction evidence" class="screenshot" />
+              </div>
+            
+          </div>
+        
+        
+        
+          <div class="item-metrics">
+            <span class="metric">FCP: 800ms</span>
+          </div>
+        
+      </div>
+    
+      <div class="report-item friction_detected">
+        <div class="item-header">
+          <span class="step-num">Step 4</span>
+          <span class="status-badge friction_detected">friction detected</span>
+        </div>
+        
+        
+          <div class="issue-content">
+            <h3 class="issue-title">No clearly styled primary action button</h3>
+            <p class="issue-impact"><strong>Impact:</strong> users may not know what to do next</p>
+            <p class="issue-suggestion"><strong>Fix:</strong> Style the main action button distinctly (color, size)</p>
+            
+            
+              <div class="screenshot-container">
+                <img src="step-4-1770245378783.png" alt="Friction evidence" class="screenshot" />
+              </div>
+            
+          </div>
+        
+        
+        
+          <div class="item-metrics">
+            <span class="metric">FCP: 800ms</span>
+          </div>
+        
+      </div>
+    
+      <div class="report-item friction_detected">
+        <div class="item-header">
+          <span class="step-num">Step 5</span>
+          <span class="status-badge friction_detected">friction detected</span>
+        </div>
+        
+        
+          <div class="issue-content">
+            <h3 class="issue-title">119 images missing alt text</h3>
+            <p class="issue-impact"><strong>Impact:</strong> users with screen readers cannot understand the content</p>
+            <p class="issue-suggestion"><strong>Fix:</strong> Add descriptive alt text to all informative images</p>
+            
+            
+              <div class="screenshot-container">
+                <img src="step-5-1770245380612.png" alt="Friction evidence" class="screenshot" />
+              </div>
+            
+          </div>
+        
+        
+        
+          <div class="item-metrics">
+            <span class="metric">FCP: 800ms</span>
+          </div>
+        
+      </div>
+    
+      <div class="report-item friction_detected">
+        <div class="item-header">
+          <span class="step-num">Step 6</span>
+          <span class="status-badge friction_detected">friction detected</span>
+        </div>
+        
+        
+          <div class="issue-content">
+            <h3 class="issue-title">Multiple elements have poor text contrast (below 4.5:1)</h3>
+            <p class="issue-impact"><strong>Impact:</strong> users with visual impairments or in bright light will struggle to read</p>
+            <p class="issue-suggestion"><strong>Fix:</strong> Increase contrast ratio between text and background to at least 4.5:1</p>
+            
+            
+              <div class="screenshot-container">
+                <img src="step-6-1770245380921.png" alt="Friction evidence" class="screenshot" />
+              </div>
+            
+          </div>
+        
+        
+        
+          <div class="item-metrics">
+            <span class="metric">FCP: 800ms</span>
+          </div>
+        
+      </div>
+    
+      <div class="report-item friction_detected">
+        <div class="item-header">
+          <span class="step-num">Step 7</span>
+          <span class="status-badge friction_detected">friction detected</span>
+        </div>
+        
+        
+          <div class="issue-content">
+            <h3 class="issue-title">15 competing CTAs detected on page</h3>
+            <p class="issue-impact"><strong>Impact:</strong> users may feel overwhelmed and abandon</p>
+            <p class="issue-suggestion"><strong>Fix:</strong> Reduce to a single primary action per section</p>
+            
+            
+              <div class="screenshot-container">
+                <img src="step-7-1770245381597.png" alt="Friction evidence" class="screenshot" />
+              </div>
+            
+          </div>
+        
+        
+        
+          <div class="item-metrics">
+            <span class="metric">FCP: 800ms</span>
+          </div>
+        
+      </div>
+    
+      <div class="report-item friction_detected">
+        <div class="item-header">
+          <span class="step-num">Step 8</span>
+          <span class="status-badge friction_detected">friction detected</span>
+        </div>
+        
+        
+          <div class="issue-content">
+            <h3 class="issue-title">No clearly styled primary action button</h3>
+            <p class="issue-impact"><strong>Impact:</strong> users may not know what to do next</p>
+            <p class="issue-suggestion"><strong>Fix:</strong> Style the main action button distinctly (color, size)</p>
+            
+            
+              <div class="screenshot-container">
+                <img src="step-8-1770245381893.png" alt="Friction evidence" class="screenshot" />
+              </div>
+            
+          </div>
+        
+        
+        
+          <div class="item-metrics">
+            <span class="metric">FCP: 800ms</span>
+          </div>
+        
+      </div>
+    
+      <div class="report-item friction_detected">
+        <div class="item-header">
+          <span class="step-num">Step 9</span>
+          <span class="status-badge friction_detected">friction detected</span>
+        </div>
+        
+        
+          <div class="issue-content">
+            <h3 class="issue-title">AI Insight: The promotional text is quite large, which may overshadow the call-to-action buttons.</h3>
+            <p class="issue-impact"><strong>Impact:</strong> Users may overlook the buttons due to the prominent text, leading to lower conversion rates.</p>
+            <p class="issue-suggestion"><strong>Fix:</strong> Reduce the font size of the promotional text or adjust visual hierarchy to make the buttons more prominent.</p>
+            
+            
+              <div class="screenshot-container">
+                <img src="step-9-1770245389546.png" alt="Friction evidence" class="screenshot" />
+              </div>
+            
+          </div>
+        
+        
+        
+          <div class="item-metrics">
+            <span class="metric">FCP: 800ms</span>
+          </div>
+        
+      </div>
+    
+      <div class="report-item friction_detected">
+        <div class="item-header">
+          <span class="step-num">Step 10</span>
+          <span class="status-badge friction_detected">friction detected</span>
+        </div>
+        
+        
+          <div class="issue-content">
+            <h3 class="issue-title">AI Insight: The 'Download for Windows' button lacks sufficient contrast against the background.</h3>
+            <p class="issue-impact"><strong>Impact:</strong> Users may struggle to see and interact with the button, which can lead to frustration.</p>
+            <p class="issue-suggestion"><strong>Fix:</strong> Increase the contrast of the button color or add an outline to make it stand out more.</p>
+            
+            
+              <div class="screenshot-container">
+                <img src="step-10-1770245389840.png" alt="Friction evidence" class="screenshot" />
+              </div>
+            
+          </div>
+        
+        
+        
+          <div class="item-metrics">
+            <span class="metric">FCP: 800ms</span>
+          </div>
+        
+      </div>
+    
+      <div class="report-item friction_detected">
+        <div class="item-header">
+          <span class="step-num">Step 11</span>
+          <span class="status-badge friction_detected">friction detected</span>
+        </div>
+        
+        
+          <div class="issue-content">
+            <h3 class="issue-title">AI Insight: The cookie consent overlay may distract users from the main content.</h3>
+            <p class="issue-impact"><strong>Impact:</strong> Users may find it annoying to dismiss the overlay before they can interact with the page effectively.</p>
+            <p class="issue-suggestion"><strong>Fix:</strong> Make the overlay less intrusive or allow users to minimize it while browsing.</p>
+            
+            
+              <div class="screenshot-container">
+                <img src="step-11-1770245390125.png" alt="Friction evidence" class="screenshot" />
+              </div>
+            
+          </div>
+        
+        
+        
+          <div class="item-metrics">
+            <span class="metric">FCP: 800ms</span>
+          </div>
+        
+      </div>
+    
+      <div class="report-item friction_detected">
+        <div class="item-header">
+          <span class="step-num">Step 12</span>
+          <span class="status-badge friction_detected">friction detected</span>
+        </div>
+        
+        
+          <div class="issue-content">
+            <h3 class="issue-title">AI Insight: There is a lack of a clear visual cue for the 'Log In' button functionality.</h3>
+            <p class="issue-impact"><strong>Impact:</strong> Users unfamiliar with the site may not recognize the function of the button, leading to confusion.</p>
+            <p class="issue-suggestion"><strong>Fix:</strong> Add a tooltip or a more descriptive label to the button for clarity.</p>
+            
+            
+              <div class="screenshot-container">
+                <img src="step-12-1770245390384.png" alt="Friction evidence" class="screenshot" />
+              </div>
+            
+          </div>
+        
+        
+        
+          <div class="item-metrics">
+            <span class="metric">FCP: 800ms</span>
+          </div>
+        
+      </div>
+    
+        </div>
+
+        <footer>
+            <p>&copy; 2026 Sentio AI. Catch friction before your users do.</p>
+        </footer>
+    </div>
+</body>
+</html>
+    

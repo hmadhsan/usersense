@@ -1,0 +1,96 @@
+.final-cta {
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  padding: clamp(100px, 15vh, 180px) 0;
+}
+
+.final-cta::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 1000px;
+  height: 600px;
+  background: radial-gradient(ellipse, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.cta-content {
+  position: relative;
+  max-width: 800px;
+  margin: 0 auto;
+  z-index: 10;
+}
+
+.cta-title {
+  font-size: clamp(2.5rem, 5vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  margin-bottom: 1.5rem;
+  line-height: 1.1;
+}
+
+.cta-description {
+  font-size: 1.25rem;
+  color: var(--color-text-secondary);
+  max-width: 540px;
+  margin: 0 auto 3rem;
+  line-height: 1.6;
+}
+
+.cta-form {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2rem;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cta-input {
+  flex: 1;
+  padding: 1rem 1.5rem !important;
+  font-size: 1rem !important;
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, 0.5) !important;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  transition: all 0.3s ease !important;
+}
+
+.cta-input:focus {
+  background: white !important;
+  border-color: var(--color-accent) !important;
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.1) !important;
+}
+
+.cta-note {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+@media (max-width: 600px) {
+  .cta-form {
+    flex-direction: column;
+    padding: 0 1rem;
+  }
+
+  .cta-input {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .btn-gradient {
+    width: 100%;
+  }
+}

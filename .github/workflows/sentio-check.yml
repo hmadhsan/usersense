@@ -1,0 +1,48 @@
+name: Sentio Friction Check
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  friction-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: |
+          cd prototype
+          npm install
+          npx playwright install chromium
+
+      - name: Run Sentio Friction Check
+        id: sentio
+        run: |
+          cd prototype
+          # Run check and capture output
+          node src/check.js https://sentio-preview.vercel.app --report > result.txt
+          cat result.txt
+          
+          # Basic check: fail if friction points > 0
+          FRICTION_COUNT=$(grep "Friction Points:" result.txt | awk '{print $NF}')
+          echo "friction_count=$FRICTION_COUNT" >> $GITHUB_OUTPUT
+          
+          if [ "$FRICTION_COUNT" -gt "0" ]; then
+            echo "❌ Friction check failed! $FRICTION_COUNT issues detected."
+            exit 1
+          fi
+
+      - name: Upload Friction Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sentio-friction-report
+          path: prototype/sentio-reports/

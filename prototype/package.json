@@ -1,0 +1,22 @@
+{
+  "name": "@usersense/prototype",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "UserSense - AI-powered user simulation and friction detection",
+  "main": "src/index.js",
+  "bin": {
+    "usersense": "./src/check.js"
+  },
+  "scripts": {
+    "demo": "node src/demo.js",
+    "check": "node src/check.js",
+    "ai": "node src/ai-check.js",
+    "simulate": "node src/index.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "dotenv": "^17.2.3",
+    "openai": "^6.17.0",
+    "playwright": "^1.41.0"
+  }
+}

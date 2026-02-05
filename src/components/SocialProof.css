@@ -1,0 +1,74 @@
+.social-proof {
+  padding: 4rem 0;
+  background: white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+  overflow: hidden;
+}
+
+.marquee-container {
+  width: 100%;
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  user-select: none;
+  mask-image: linear-gradient(to right,
+      transparent,
+      black 15%,
+      black 85%,
+      transparent);
+}
+
+.marquee-content {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-around;
+  min-width: 100%;
+  gap: 6rem;
+  animation: scrollMarquee 40s linear infinite;
+}
+
+.logo-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  transition: all 0.4s var(--ease-out-expo);
+}
+
+.brand-logo {
+  height: 28px;
+  width: auto;
+  filter: grayscale(1);
+  opacity: 0.4;
+  transition: all 0.4s ease;
+}
+
+.logo-item:hover {
+  transform: scale(1.15) translateY(-5px);
+}
+
+.logo-item:hover .brand-logo {
+  filter: grayscale(0);
+  opacity: 1;
+}
+
+@keyframes scrollMarquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 768px) {
+  .marquee-content {
+    gap: 3rem;
+    animation-duration: 20s;
+  }
+
+  .brand-logo {
+    height: 20px;
+  }
+}
