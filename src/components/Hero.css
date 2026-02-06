@@ -1,11 +1,13 @@
 .hero {
-  min-height: calc(100vh - 72px);
+  min-height: 100vh;
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* Changed from center to allow padding-top to dictate position */
   justify-content: center;
   position: relative;
   overflow: hidden;
   text-align: center;
+  padding-top: 180px; /* Force gap from top */
+  padding-bottom: 100px;
 }
 
 .final-cta::before {
