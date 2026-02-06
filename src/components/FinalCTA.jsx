@@ -2,12 +2,13 @@ import { useState } from 'react'
 import './FinalCTA.css'
 
 function FinalCTA() {
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState('idle') // idle, loading, success, error
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!email) return
+    if (!email || !name) return
 
     setStatus('loading')
     try {
@@ -15,12 +16,13 @@ function FinalCTA() {
       const res = await fetch(`${API_BASE_URL}/api/waitlist`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ name, email })
       })
 
       if (res.ok) {
         setStatus('success')
         setEmail('')
+        setName('')
       } else {
         setStatus('error')
       }
@@ -48,17 +50,30 @@ function FinalCTA() {
               <p style={{ color: '#ccc' }}>We'll verify your access shortly. Keep an eye on your inbox.</p>
             </div>
           ) : (
-            <form className="cta-form" onSubmit={handleSubmit}>
-              <input
-                type="email"
-                placeholder="you@company.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="cta-input"
-                disabled={status === 'loading'}
-                required
-              />
-              <button type="submit" className="btn btn-gradient" disabled={status === 'loading'}>
+            <form className="cta-form" onSubmit={handleSubmit} style={{ gap: '1rem', flexDirection: 'column', maxWidth: '400px', margin: '0 auto' }}>
+              <div style={{ display: 'flex', gap: '0.5rem', width: '100%' }}>
+                <input
+                  type="text"
+                  placeholder="Your Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="cta-input"
+                  style={{ flex: 1 }}
+                  disabled={status === 'loading'}
+                  required
+                />
+                <input
+                  type="email"
+                  placeholder="you@company.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="cta-input"
+                  style={{ flex: 1.5 }}
+                  disabled={status === 'loading'}
+                  required
+                />
+              </div>
+              <button type="submit" className="btn btn-gradient" disabled={status === 'loading'} style={{ width: '100%' }}>
                 {status === 'loading' ? 'Joining...' : 'Request Access'}
               </button>
             </form>

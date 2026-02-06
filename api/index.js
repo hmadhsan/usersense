@@ -70,16 +70,20 @@ router.get('/reports', (req, res) => {
 
 // --- WAITLIST ENDPOINT ---
 router.post('/waitlist', (req, res) => {
-  const { email } = req.body;
+  const { name = 'Anonymous', email } = req.body;
   if (!email) return res.status(400).json({ error: 'Email is required' });
 
   // In a real Vercel app, you'd save to a DB
-  console.log(`[Waitlist] New signup: ${email}`);
+  console.log(`[Waitlist] New signup: ${name} <${email}>`);
 
-  // Optional: Save to temp file
+  // Optional: Save to temp file (CSV Format)
   try {
-    const filePath = `${REPORTS_DIR}/waitlist.txt`;
-    fs.appendFileSync(filePath, `${new Date().toISOString()}: ${email}\n`);
+    const filePath = `${REPORTS_DIR}/waitlist.csv`;
+    if (!fs.existsSync(filePath)) {
+      fs.writeFileSync(filePath, 'Timestamp,Name,Email\n');
+    }
+    const csvLine = `"${new Date().toISOString()}","${name.replace(/"/g, '""')}","${email.replace(/"/g, '""')}"\n`;
+    fs.appendFileSync(filePath, csvLine);
   } catch (e) {
     // Ignore
   }

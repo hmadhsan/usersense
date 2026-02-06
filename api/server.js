@@ -62,13 +62,23 @@ router.get('/reports', (req, res) => {
 });
 
 router.post('/waitlist', (req, res) => {
-  const { email } = req.body;
+  const { name = 'Anonymous', email } = req.body;
   if (!email) return res.status(400).json({ error: 'Email is required' });
-  console.log(`[Local Waitlist] New signup: ${email}`);
+
+  console.log(`[Local Waitlist] New signup: ${name} <${email}>`);
+
+  // Save to local CSV file
   try {
-    const filePath = path.join(REPORTS_DIR, 'waitlist.txt');
-    fs.appendFileSync(filePath, `${new Date().toISOString()}: ${email}\n`);
-  } catch (e) { console.error('Waitlist save error:', e); }
+    const filePath = path.join(REPORTS_DIR, 'waitlist.csv');
+    if (!fs.existsSync(filePath)) {
+      fs.writeFileSync(filePath, 'Timestamp,Name,Email\n');
+    }
+    const csvLine = `"${new Date().toISOString()}","${name.replace(/"/g, '""')}","${email.replace(/"/g, '""')}"\n`;
+    fs.appendFileSync(filePath, csvLine);
+  } catch (e) {
+    console.error('Waitlist save error:', e);
+  }
+
   res.json({ success: true, message: "Added to waitlist" });
 });
 
