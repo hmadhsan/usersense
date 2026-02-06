@@ -15,78 +15,43 @@ import './WorkflowDiagram.css';
 const WorkflowDiagram = () => {
   return (
     <div className="workflow-container">
-      <div className="workflow-canvas">
-        {/* Connection Lines (SVGs or Background Elements) */}
-        <div className="connection-overlay">
-          <div className="line line-top"></div>
-          <div className="line line-left"></div>
-          <div className="line line-right"></div>
-          <div className="line line-bottom"></div>
-          <div className="line line-diag-tl"></div>
-          <div className="line line-diag-tr"></div>
-        </div>
-
-        {/* Central Engine Hub */}
-        <div className="node central-hub">
-          <div className="hub-core">
-            <Zap size={32} className="hub-icon" />
-            <div className="hub-glow"></div>
-          </div>
-          <div className="node-label">Sentio Core</div>
-        </div>
-
-        {/* Behavioral Agents (Top) */}
-        <div className="node-cluster agents-top">
-          <div className="node secondary-node perfectionist" title="Visual & Alignment Audit">
-            <Target size={20} />
-            <div className="data-packet"></div>
-          </div>
-          <div className="node secondary-node first-timer" title="Clarity & Onboarding Audit">
-            <Search size={20} />
-            <div className="data-packet"></div>
-          </div>
-          <div className="node secondary-node power-user" title="Efficiency & Speed Audit">
-            <Activity size={20} />
-            <div className="data-packet"></div>
-          </div>
-          <div className="cluster-label">Behaviroal AI Agents</div>
-        </div>
-
-        {/* Integration Layer (Left) */}
-        <div className="node-cluster integration-left">
-          <div className="node secondary-node sdk" title="Client-side SDK">
-            <Layers size={20} />
-          </div>
-          <div className="node secondary-node api" title="Bridge API">
-            <Globe size={20} />
-          </div>
-          <div className="cluster-label">Data Integration</div>
-        </div>
-
-        {/* Analytics Hub (Right) */}
-        <div className="node-cluster analytics-right">
-          <div className="node secondary-node insights" title="Executive Insights">
-            <Shield size={20} />
-          </div>
-          <div className="node secondary-node heatmap" title="Friction Heatmapping">
-            <Cpu size={20} />
-          </div>
-          <div className="cluster-label">Executive Intelligence</div>
-        </div>
-
-        {/* Audit Cycle (Bottom) */}
-        <div className="node-cluster audit-bottom">
-          <div className="node secondary-node autonomous" title="Autonomous Simulation">
-            <Users size={20} />
-          </div>
-          <div className="cluster-label">Simulation Engine</div>
-        </div>
+      <div className="workflow-header-section">
+        <h2 className="workflow-title">How UserSense Works</h2>
+        <p className="workflow-subtitle">From integration to insight in three autonomous steps.</p>
       </div>
 
-      <div className="workflow-footer">
-        <p className="text-muted text-sm uppercase tracking-widest font-bold">
-          Multi-Dimensional Intelligence Architecture
-        </p>
+      <div className="workflow-steps">
+        {/* Step 1: Install */}
+        <div className="step-card">
+          <div className="step-number">01</div>
+          <div className="step-icon">
+            <Layers size={32} />
+          </div>
+          <h3>Connect</h3>
+          <p>Add the SDK to your app or connect via API. It takes less than 2 minutes.</p>
+          <div className="step-connector"></div>
+        </div>
+
+        {/* Step 2: Simulate */}
+        <div className="step-card active-step">
+          <div className="step-number">02</div>
+          <div className="step-icon pulse-icon">
+            <Zap size={32} />
+          </div>
+          <h3>Simulate</h3>
+          <p>AI agents browse your site like real users, finding friction and errors.</p>
+          <div className="step-connector"></div>
+        </div>
+
+        {/* Step 3: Analyze */}
+        <div className="step-card">
+          <div className="step-number">03</div>
+          <div className="step-icon">
+            <Activity size={32} />
+          </div>
+          <h3>Improve</h3>
+          <p>Get instant reports with video evidence and code-level fix suggestions.</p>
+        </div>
       </div>
     </div>
   );
