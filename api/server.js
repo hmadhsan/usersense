@@ -4,184 +4,94 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const isVercel = !!process.env.VERCEL || process.env.NODE_ENV === 'production';
-console.log(`[Bridge] Server starting... Environment: ${isVercel ? 'Cloud' : 'Local'}`);
+// --- LOCAL DEV SERVER ---
+// This file is for LOCAL DEVELOPMENT ONLY.
+// Vercel uses api/index.js instead.
 
-// On Vercel, use /tmp for runtime operations as the main FS is read-only
-const REPORTS_DIR = isVercel
-  ? '/tmp/usersense-reports'
-  : path.resolve(__dirname, '../prototype/usersense-reports');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const REPORTS_DIR = path.resolve(__dirname, '../prototype/usersense-reports');
 
 if (!fs.existsSync(REPORTS_DIR)) {
-  try {
-    fs.mkdirSync(REPORTS_DIR, { recursive: true });
-  } catch (e) {
-    console.warn('[Server] Directory creation warning:', e.message);
-  }
+  fs.mkdirSync(REPORTS_DIR, { recursive: true });
 }
+
+// Load local-only dependencies (safe here because Vercel doesn't run this file)
+import dotenv from 'dotenv';
+import { Session } from '../prototype/src/index.js';
+
+const envPath = path.resolve(__dirname, '../prototype/.env');
+if (fs.existsSync(envPath)) dotenv.config({ path: envPath });
 
 const app = express();
+app.use(cors());
+app.use(express.json());
+app.use('/screenshots', express.static(REPORTS_DIR));
 
-// Global error handler for startup
-try {
-  app.use(cors());
-  app.use(express.json());
+const router = express.Router();
 
-  const router = express.Router();
+router.get('/health', (req, res) => {
+  res.json({ status: 'ok', environment: 'local-dev', time: new Date().toISOString() });
+});
 
-  // Health check endpoint with better diagnostics
-  router.get('/health', (req, res) => {
-    try {
-      res.json({
-        status: 'ok',
-        environment: isVercel ? 'production' : 'development',
-        vercel_env: process.env.VERCEL,
-        node_env: process.env.NODE_ENV,
-        time: new Date().toISOString(),
-        reports_dir: REPORTS_DIR,
-        storage_check: fs.existsSync(REPORTS_DIR)
+router.get('/reports', (req, res) => {
+  try {
+    if (!fs.existsSync(REPORTS_DIR)) return res.json([]);
+    const files = fs.readdirSync(REPORTS_DIR)
+      .filter(f => f.endsWith('.json'))
+      .sort((a, b) => {
+        try { return fs.statSync(path.join(REPORTS_DIR, b)).mtimeMs - fs.statSync(path.join(REPORTS_DIR, a)).mtimeMs; } catch (_) { return 0; }
       });
-    } catch (e) {
-      res.status(500).json({ status: 'error', message: e.message });
-    }
-  });
-
-  router.get('/ping', (req, res) => {
-    res.send('pong');
-  });
-
-  // API to fetch all previous reports
-  router.get('/reports', (req, res) => {
-    try {
-      if (!fs.existsSync(REPORTS_DIR)) {
-        return res.json([]);
-      }
-
-      const files = fs.readdirSync(REPORTS_DIR)
-        .filter(f => f.endsWith('.json'))
-        .sort((a, b) => {
-          try {
-            return fs.statSync(path.join(REPORTS_DIR, b)).mtimeMs - fs.statSync(path.join(REPORTS_DIR, a)).mtimeMs;
-          } catch (e) { return 0; }
-        });
-
-      const reports = files.map(file => {
-        try {
-          const content = JSON.parse(fs.readFileSync(path.join(REPORTS_DIR, file), 'utf8'));
-          const score = content.score || Math.max(0, 100 - (content.frictionPoints * 12));
-          return {
-            id: file,
-            url: content.url,
-            goal: content.goal || "Deep Audit",
-            score: score,
-            date: content.date || new Date().toISOString().split('T')[0],
-            friction: content.frictionPoints,
-            steps: content.totalSteps || 0,
-            status: score > 85 ? 'Healthy' : (score > 60 ? 'Warning' : 'Critical'),
-            journey: content.report?.map(step => ({
-              ...step,
-              screenshot: step.screenshot ? path.basename(step.screenshot) : null
-            })) || []
-          };
-        } catch (e) { return null; }
-      }).filter(r => r !== null);
-
-      res.json(reports);
-    } catch (error) {
-      console.error('Fetch reports error:', error);
-      res.json([]);
-    }
-  });
-
-  router.post('/scan', async (req, res) => {
-    const { url, goal = "Perform a deep experience audit and find friction", persona = "Default" } = req.body;
-
-    if (!url) {
-      return res.status(400).json({ error: 'URL is required' });
-    }
-
-    console.log(`[Bridge] Scan Request: ${url}`);
-
-    // --- PRODUCTION (VERCEL) FALLBACK ---
-    if (isVercel) {
-      console.log('[Bridge] Running Cloud Simulation...');
-
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      const result = {
-        url, goal, persona,
-        score: 75 + Math.floor(Math.random() * 15),
-        frictionPoints: 1,
-        totalSteps: 2,
-        date: new Date().toISOString().split('T')[0],
-        report: [
-          { step: 1, status: 'ok', issue: 'Navigation Success', impact: 'Cloud agent reached target.', suggestion: '', coordinates: { x: 0, y: 0 } },
-          { step: 2, status: 'friction_detected', issue: 'Minor Contrast Warning', impact: 'Some headers may be hard to read.', suggestion: 'Check accessibility colors.', coordinates: { x: 100, y: 100, width: 200, height: 50 } }
-        ]
-      };
-
-      const jsonFilename = `report-${Date.now()}.json`;
+    const reports = files.map(file => {
       try {
-        fs.writeFileSync(path.join(REPORTS_DIR, jsonFilename), JSON.stringify(result, null, 2));
-      } catch (e) {
-        console.warn('[Bridge] Persistence skipped in cloud environment:', e.message);
-      }
+        const content = JSON.parse(fs.readFileSync(path.join(REPORTS_DIR, file), 'utf8'));
+        return {
+          id: file,
+          url: content.url,
+          goal: content.goal,
+          score: content.score || 80,
+          date: content.date || new Date().toISOString().split('T')[0],
+          friction: content.frictionPoints || 0,
+          steps: content.totalSteps || 0,
+          status: (content.score || 80) > 85 ? 'Healthy' : 'Warning',
+          journey: content.report || []
+        };
+      } catch (_) { return null; }
+    }).filter(Boolean);
+    res.json(reports);
+  } catch (e) { res.json([]); }
+});
 
-      return res.json(result);
-    }
+router.post('/scan', async (req, res) => {
+  const { url, goal = "Audit", persona = "Default" } = req.body;
+  if (!url) return res.status(400).json({ error: 'URL required' });
 
-    // --- LOCAL ENGINE (DYNAMIC LOADING) ---
-    try {
-      // Dynamically load local-only dependencies
-      const { default: dotenv } = await import('dotenv');
-      const { Session } = await import('../prototype/src/index.js');
+  console.log(`[Local Bridge] Starting FULL scan for: ${url}`);
 
-      const envPath = path.resolve(__dirname, '../prototype/.env');
-      if (fs.existsSync(envPath)) {
-        dotenv.config({ path: envPath });
-      }
+  try {
+    const session = new Session({ project: 'web-live-check', persona, outputDir: REPORTS_DIR });
+    await session.init();
+    await session.page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    const result = await session.executeGoal(goal, 3);
+    await session.close();
 
-      const session = new Session({
-        project: 'web-live-check',
-        persona,
-        outputDir: REPORTS_DIR
-      });
+    result.persona = persona;
+    result.date = new Date().toISOString().split('T')[0];
 
-      await session.init();
-      await session.page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
-
-      const result = await session.executeGoal(goal, 3);
-      await session.close();
-
-      result.persona = persona;
-      result.date = new Date().toISOString().split('T')[0];
-
-      const jsonFilename = `report-${Date.now()}.json`;
-      fs.writeFileSync(path.join(REPORTS_DIR, jsonFilename), JSON.stringify(result, null, 2));
-
-      console.log(`[Bridge] Local Scan complete: ${jsonFilename}`);
-      res.json(result);
-    } catch (error) {
-      console.error('[Bridge] Local Engine Error:', error.message);
-      res.status(500).json({ error: 'Simulation failed', details: error.message });
-    }
-  });
-
-  // Handle BOTH prefixes
-  app.use('/api', router);
-  app.use('/', router);
-  app.use('/screenshots', express.static(REPORTS_DIR));
-  app.use('/api/screenshots', express.static(REPORTS_DIR));
-
-  if (process.env.NODE_ENV !== 'production' && !isVercel) {
-    const PORT = 3001;
-    app.listen(PORT, () => {
-      console.log(`✅ UserSense Bridge running locally: http://localhost:${PORT}`);
-    });
+    fs.writeFileSync(path.join(REPORTS_DIR, `report-${Date.now()}.json`), JSON.stringify(result, null, 2));
+    console.log(`[Local Bridge] Scan complete.`);
+    res.json(result);
+  } catch (error) {
+    console.error('[Local Bridge] Error:', error.message);
+    res.status(500).json({ error: 'Local Scan Failed', details: error.message });
   }
-} catch (globalError) {
-  console.error('[Server] Critical Startup Error:', globalError);
-}
+});
+
+app.use('/api', router);
+app.use('/', router);
+
+const PORT = 3001;
+app.listen(PORT, () => {
+  console.log(`✅ UserSense Bridge (Local) running on http://localhost:${PORT}`);
+});
 
 export default app;
