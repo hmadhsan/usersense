@@ -68,6 +68,25 @@ router.get('/reports', (req, res) => {
   }
 });
 
+// --- WAITLIST ENDPOINT ---
+router.post('/waitlist', (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email is required' });
+
+  // In a real Vercel app, you'd save to a DB
+  console.log(`[Waitlist] New signup: ${email}`);
+
+  // Optional: Save to temp file
+  try {
+    const filePath = `${REPORTS_DIR}/waitlist.txt`;
+    fs.appendFileSync(filePath, `${new Date().toISOString()}: ${email}\n`);
+  } catch (e) {
+    // Ignore
+  }
+
+  res.json({ success: true, message: "Added to waitlist" });
+});
+
 router.post('/scan', async (req, res) => {
   const { url, goal = "User Experience Audit", persona = "Default" } = req.body;
 

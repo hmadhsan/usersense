@@ -61,6 +61,17 @@ router.get('/reports', (req, res) => {
   } catch (e) { res.json([]); }
 });
 
+router.post('/waitlist', (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email is required' });
+  console.log(`[Local Waitlist] New signup: ${email}`);
+  try {
+    const filePath = path.join(REPORTS_DIR, 'waitlist.txt');
+    fs.appendFileSync(filePath, `${new Date().toISOString()}: ${email}\n`);
+  } catch (e) { console.error('Waitlist save error:', e); }
+  res.json({ success: true, message: "Added to waitlist" });
+});
+
 router.post('/scan', async (req, res) => {
   const { url, goal = "Audit", persona = "Default" } = req.body;
   if (!url) return res.status(400).json({ error: 'URL required' });
